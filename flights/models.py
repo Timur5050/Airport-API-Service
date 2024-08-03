@@ -19,3 +19,10 @@ class Crew(models.Model):
 
     def __str__(self) -> str:
         return self.full_name
+
+
+class AirplaneType(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self) -> str:
+        return str(self.name)
