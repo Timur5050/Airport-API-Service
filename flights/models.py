@@ -49,3 +49,14 @@ class Airplane(models.Model):
 
     def __str__(self) -> str:
         return str(self.name)
+
+
+class Flight(models.Model):
+    route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='flights')
+    airplane = models.ForeignKey(AirplaneType, on_delete=models.CASCADE, related_name='flights')
+    crew = models.ManyToManyField(Crew, related_name='flights')
+    departure_time = models.DateTimeField()
+    arrival_time = models.DateTimeField()
+
+    def __str__(self) -> str:
+        return f"{self.route} {self.airplane.name}"
