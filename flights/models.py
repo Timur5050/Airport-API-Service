@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -76,3 +77,60 @@ class Order(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+
+class Ticket(models.Model):
+    row = models.IntegerField()
+    seat = models.IntegerField()
+    flight = models.ForeignKey(
+        Flight,
+        on_delete=models.CASCADE,
+        related_name='tickets'
+    )
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='tickets'
+    )
+
+    @staticmethod
+    def validate_ticket(row, seat, flight):
+        for ticket_attr_value, ticket_attr_name, flight_attr_name in [
+            (row, "row", "rows"),
+            (seat, "seat", "seats_in_row"),
+        ]:
+            counter = getattr(flight, flight_attr_name)
+            if not (1 <= ticket_attr_value <=counter):
+                raise ValidationError(
+                    {
+                        ticket_attr_name: f"{ticket_attr_name} "
+                        f"number is not in range: (1, {counter})"
+                    }
+                )
+
+    def clean(self):
+        Ticket.validate_ticket(
+            self.row,
+            self.seat,
+            self.flight.airplane
+        )
+
+    def save(
+            self,
+            force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None
+    ):
+        self.full_clean()
+        return super(Ticket, self).save(
+            force_insert,
+            force_update,
+            using,
+            update_fields)
+
+    def __str__(self) -> str:
+        return f"{self.row} {self.seat}"
+
+    class Meta:
+        unique_together = ("flight", "row", "seat")
+        ordering = ["row", "seat"]
