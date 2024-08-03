@@ -21,6 +21,15 @@ class Crew(models.Model):
         return self.full_name
 
 
+class Route(models.Model):
+    source = models.ForeignKey(Airport, on_delete=models.CASCADE)
+    destination = models.ForeignKey(Airport, on_delete=models.CASCADE)
+    distance = models.FloatField()
+
+    def __str__(self) -> str:
+        return f"{self.source.name} -> {self.destination.name} ({self.distance})"
+
+
 class AirplaneType(models.Model):
     name = models.CharField(max_length=255)
 
@@ -40,6 +49,3 @@ class Airplane(models.Model):
 
     def __str__(self) -> str:
         return str(self.name)
-
-
-
