@@ -8,6 +8,7 @@ from flights.models import (
     Airplane,
     Flight,
     Order,
+    Ticket
 )
 
 
@@ -73,3 +74,25 @@ class FlightListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
         fields = ("id", "route", "airplane_name", "airplane_type", "crew", "departure_time", "arrival_time")
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("id", "row", "seat", "flight")
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    tickets = TicketSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ("id", "created_at", "tickets")
+
+    def create(self, validated_data):
+        tickets = validated_data.pop("tickets")
+        order = Order.objects.create(**validated_data, user=self.context["request"].user)
+        for ticket in tickets:
+            Ticket.objects.create(**ticket, order=order)
+
+        return order
