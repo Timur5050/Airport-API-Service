@@ -3,7 +3,8 @@ from flights.views import (
     CrewViewSet,
     RouteViewSet,
     AirplaneTypeViewSet,
-    AirplaneViewSet
+    AirplaneViewSet,
+    FlightViewSet
 )
 
 from django.urls import path, include
@@ -16,6 +17,7 @@ router.register("crews", CrewViewSet)
 router.register("routes", RouteViewSet)
 router.register("airplane_types", AirplaneTypeViewSet)
 router.register("airplanes", AirplaneViewSet)
+router.register("flights", FlightViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
