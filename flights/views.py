@@ -39,3 +39,17 @@ class RouteViewSet(ModelViewSet):
 class AirplaneTypeViewSet(ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
+
+
+class AirplaneViewSet(ModelViewSet):
+    queryset = Airplane.objects.all()
+    serializer_class = AirplaneSerializer
+
+    def get_serializer_class(self):
+        serializer_class = self.serializer_class
+        if self.action == 'list':
+            serializer_class = AirplaneListSerializer
+        elif self.action == 'create':
+            serializer_class = AirplaneSerializer
+
+        return serializer_class
