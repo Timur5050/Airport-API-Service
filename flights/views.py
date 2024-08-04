@@ -21,6 +21,7 @@ class CrewViewSet(ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
 
+
 class RouteViewSet(ModelViewSet):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
@@ -33,3 +34,8 @@ class RouteViewSet(ModelViewSet):
             serializer_class = RouteSerializer
 
         return serializer_class
+
+
+class AirplaneTypeViewSet(ModelViewSet):
+    queryset = AirplaneType.objects.all()
+    serializer_class = AirplaneTypeSerializer
