@@ -20,3 +20,16 @@ class AirportViewSet(ModelViewSet):
 class CrewViewSet(ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+
+class RouteViewSet(ModelViewSet):
+    queryset = Route.objects.all()
+    serializer_class = RouteSerializer
+
+    def get_serializer_class(self):
+        serializer_class = self.serializer_class
+        if self.action == 'list':
+            serializer_class = RouteListSerializer
+        elif self.action == 'create':
+            serializer_class = RouteSerializer
+
+        return serializer_class
