@@ -24,7 +24,7 @@ class Crew(models.Model):
 
 
 class Route(models.Model):
-    source = models.ForeignKey(Airport, on_delete=models.CASCADE)
+    source = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="routes")
     destination = models.ForeignKey(Airport, on_delete=models.CASCADE)
     distance = models.FloatField()
 
@@ -54,9 +54,9 @@ class Airplane(models.Model):
 
 
 class Flight(models.Model):
-    route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='flights')
-    airplane = models.ForeignKey(AirplaneType, on_delete=models.CASCADE, related_name='flights')
-    crew = models.ManyToManyField(Crew, related_name='flights')
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)
+    airplane = models.ForeignKey(AirplaneType, on_delete=models.CASCADE)
+    crew = models.ManyToManyField(Crew)
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
 
