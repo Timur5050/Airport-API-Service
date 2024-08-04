@@ -4,7 +4,8 @@ from flights.views import (
     RouteViewSet,
     AirplaneTypeViewSet,
     AirplaneViewSet,
-    FlightViewSet
+    FlightViewSet,
+    OrderViewSet
 )
 
 from django.urls import path, include
@@ -18,6 +19,7 @@ router.register("routes", RouteViewSet)
 router.register("airplane_types", AirplaneTypeViewSet)
 router.register("airplanes", AirplaneViewSet)
 router.register("flights", FlightViewSet)
+router.register("orders", OrderViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
