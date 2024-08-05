@@ -136,6 +136,10 @@ REST_FRAMEWORK = {
         "flights.permissions.ReadRetrieveOrAdminPermissions",
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle"
+    ],
 }
 
 SIMPLE_JWT = {
