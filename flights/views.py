@@ -41,6 +41,10 @@ class RouteViewSet(ModelViewSet):
 
         return serializer_class
 
+    def get_queryset(self):
+        queryset = Route.objects.all().select_related("source", "destination")
+        return queryset
+
 
 class AirplaneTypeViewSet(ModelViewSet):
     queryset = AirplaneType.objects.all()
