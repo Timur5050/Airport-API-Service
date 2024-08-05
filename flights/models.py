@@ -1,6 +1,11 @@
+import os
+import uuid
+from pathlib import Path
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.text import slugify
 
 
 class Airport(models.Model):
@@ -39,11 +44,19 @@ class AirplaneType(models.Model):
         return str(self.name)
 
 
+def image_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    url = f"{slugify(instance.name)}-{uuid.uuid4()}{extension}"
+
+    return os.path.join("uploads/airplanes/", url)
+
+
 class Airplane(models.Model):
     name = models.CharField(max_length=255)
     rows = models.IntegerField()
     seats_in_row = models.IntegerField()
     airplane_type = models.ForeignKey(AirplaneType, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to=image_path, null=True, blank=True)
 
     @property
     def capacity(self) -> int:
