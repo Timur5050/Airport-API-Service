@@ -77,4 +77,4 @@ Download it:
 http://127.0.0.8000/api/schema/ or http://127.0.0.8001/api/schema/ for docker-compose
 
 # demo
-![Website Interface](demo.png)
+![Website Interface](demo.jpg)
