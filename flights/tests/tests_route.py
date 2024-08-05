@@ -25,11 +25,13 @@ def create_default_airport(val):
 
 
 def create_default_route(source, destination):
-    return Route.objects.create(
+    route = Route.objects.create(
         source=source,
         destination=destination,
         distance=1000
     )
+    route.save()
+    return route
 
 
 class TestUnauthenticatedUserRoute(TestCase):
@@ -53,7 +55,19 @@ class TestAuthenticatedUserRoute(TestCase):
         self.airport1 = create_default_airport(1)
         self.airport2 = create_default_airport(2)
 
+    def test_list_route(self):
+        res = self.client.get(route_url)
 
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 0)
+
+        create_default_route(self.airport1, self.airport2)
+        create_default_route(self.airport2, self.airport1)
+        res = self.client.get(route_url)
+        all = Route.objects.all()
+        print("all: ", all)
+        print("res: ", res.data)
+        self.assertEqual(len(res.data), 2)
 
     def test_retrieve_route_details(self):
         route = create_default_route(self.airport1, self.airport2)
@@ -100,4 +114,3 @@ class TestAdminUserFlight(TestCase):
         res = self.client.post(route_url, data, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
