@@ -1,6 +1,8 @@
 from django.db.models import F, Count
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.mixins import ListModelMixin
 
 from flights.models import Airport, Crew, Route, Airplane, AirplaneType, Flight, Order
 from flights.serializers import (
@@ -17,7 +19,7 @@ from flights.serializers import (
     OrderSerializer
 )
 
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 
 @extend_schema_view(
@@ -91,7 +93,7 @@ class CrewViewSet(ModelViewSet):
     ),
 )
 class RouteViewSet(ModelViewSet):
-    queryset = Route.objects.all().select_related("source", "destination")
+    queryset = Route.objects.all()
     serializer_class = RouteSerializer
 
     def get_serializer_class(self):
@@ -104,7 +106,8 @@ class RouteViewSet(ModelViewSet):
         return serializer_class
 
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = self.queryset.select_related("source", "destination")
+        print(queryset)
         source = self.request.query_params.get("source")
         destination = self.request.query_params.get("destination")
         if source:
@@ -224,7 +227,7 @@ class StandardResultsSetPagination(PageNumberPagination):
 )
 class FlightViewSet(ModelViewSet):
     queryset = (
-        Flight.objects.all()
+        Flight.objects
         .select_related("route", "airplane", "route__source", "route__destination")
         .prefetch_related("crew")
         .annotate(
@@ -241,16 +244,15 @@ class FlightViewSet(ModelViewSet):
         if self.action == 'list':
             serializer_class = FlightListSerializer
         elif self.action == "create":
-            serializer_class = FlightSerializer
+             serializer_class = FlightSerializer
         elif self.action == "retrieve":
-            serializer_class = FLightRetrieveSerializer
+             serializer_class = FLightRetrieveSerializer
 
         return serializer_class
 
-    def get_queryset(self):
-        queryset = self.queryset
+    # def create(self, request, *args, **kwargs):
+    #     raise MethodNotAllowed(request.POST)
 
-        return queryset
 
 
 @extend_schema_view(
