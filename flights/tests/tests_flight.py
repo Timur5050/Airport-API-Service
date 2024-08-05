@@ -118,3 +118,52 @@ class TestAuthenticatedUserFlight(TestCase):
         res = self.client.post(flight_url, data)
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class TestAdminUserFlight(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_superuser(
+            "admin", "admin@gmain.com", is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+        self.airport1 = create_default_airport(1)
+        self.airport2 = create_default_airport(2)
+        self.airplane_type = create_default_airplane_type()
+        self.airplane = create_default_airplane(self.airplane_type)
+        self.route1 = create_default_route(self.airport1, self.airport2)
+        self.crew1 = create_default_crew(1)
+
+    def test_create_flight(self):
+        now = timezone.now()
+        data = {
+            "route": self.route1.id,
+            "airplane": self.airplane.id,
+            "departure_time": now,
+            "arrival_time": now + timezone.timedelta(hours=1),
+            "crew": [self.crew1.id]
+        }
+
+        res = self.client.post(flight_url, data, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+    def test_create_flight_with_crew(self):
+        crew1 = self.crew1
+        crew2 = create_default_crew(2)
+        now = timezone.now()
+        data = {
+            "route": self.route1.id,
+            "airplane": self.airplane.id,
+            "departure_time": now,
+            "arrival_time": now + timezone.timedelta(hours=1),
+            "crew": [crew1.id, crew2.id]
+        }
+
+        res = self.client.post(flight_url, data, format='json')
+
+        flight = Flight.objects.get(id=res.data["id"])
+        crew = flight.crew.all()
+        self.assertEqual(crew.count(), 2)
+        self.assertIn(crew1, crew)
+        self.assertIn(crew2, crew)
