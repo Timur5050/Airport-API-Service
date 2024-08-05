@@ -71,3 +71,50 @@ class TestUnauthenticatedUserFlight(TestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
+class TestAuthenticatedUserFlight(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            "test",
+            "test123@gmail.com",
+            "test123"
+        )
+        self.client.force_authenticate(self.user)
+        self.airport1 = create_default_airport(1)
+        self.airport2 = create_default_airport(2)
+        self.airplane_type = create_default_airplane_type()
+        self.airplane = create_default_airplane(self.airplane_type)
+        self.route1 = create_default_route(self.airport1, self.airport2)
+
+    def test_list_flight(self):
+        res = self.client.get(flight_url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data.get("results")), 0)
+
+        create_default_flight(self.route1, self.airplane)
+        res = self.client.get(flight_url)
+        self.assertEqual(len(res.data.get("results")), 1)
+
+    def test_retrieve_flight_details(self):
+        flight = create_default_flight(self.route1, self.airplane)
+
+        url = detail_url(flight.id)
+        res = self.client.get(url)
+
+        serializer = FLightRetrieveSerializer(flight)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        res.data.pop("available_places")
+        self.assertEqual(res.data, serializer.data)
+
+    def test_create_flight_forbidden(self):
+        data = {
+            "route": self.route1,
+            "airplane": self.airplane,
+            "departure_time": datetime.datetime.now(),
+            "arrival_time": datetime.datetime.now()
+        }
+
+        res = self.client.post(flight_url, data)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
