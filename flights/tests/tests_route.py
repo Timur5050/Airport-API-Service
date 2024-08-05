@@ -54,6 +54,7 @@ class TestAuthenticatedUserRoute(TestCase):
         self.airport2 = create_default_airport(2)
 
 
+
     def test_retrieve_route_details(self):
         route = create_default_route(self.airport1, self.airport2)
 
@@ -74,3 +75,29 @@ class TestAuthenticatedUserRoute(TestCase):
         res = self.client.post(route_url, data)
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class TestAdminUserFlight(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_superuser(
+            "admin",
+            "admin123@gmail.com",
+            "admin123"
+        )
+        self.client.force_authenticate(self.user)
+        self.airport1 = create_default_airport(1)
+        self.airport2 = create_default_airport(2)
+
+    def test_create_route(self):
+        now = timezone.now()
+        data = {
+            "source": self.airport1.id,
+            "destination": self.airport2.id,
+            "distance": 1000,
+        }
+
+        res = self.client.post(route_url, data, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
