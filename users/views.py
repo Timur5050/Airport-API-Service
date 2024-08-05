@@ -7,6 +7,7 @@ from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 class CreateUser(CreateAPIView):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
+    permission_classes = ()
 
 
 class RetrieveUpdateUser(RetrieveUpdateAPIView):
