@@ -1,3 +1,5 @@
+from django.db.models import F, Count
+
 from flights.models import Airport, Crew, Route, Airplane, AirplaneType, Flight, Order
 from flights.serializers import (
     AirportSerializer,
@@ -8,7 +10,9 @@ from flights.serializers import (
     AirplaneListSerializer,
     AirplaneSerializer,
     FlightSerializer,
-    FlightListSerializer, OrderSerializer
+    FlightListSerializer,
+    FLightRetrieveSerializer,
+    OrderSerializer
 )
 
 from rest_framework.viewsets import ModelViewSet
@@ -67,8 +71,17 @@ class FlightViewSet(ModelViewSet):
             serializer_class = FlightListSerializer
         elif self.action == "create":
             serializer_class = FlightSerializer
+        elif self.action == "retrieve":
+            serializer_class = FLightRetrieveSerializer
 
         return serializer_class
+
+    def get_queryset(self):
+        queryset = self.queryset
+        queryset = queryset.annotate(
+            available_places=F("airplane__rows") * F("airplane__seats_in_row") - Count("tickets")
+        )
+        return queryset
 
 
 class OrderViewSet(ModelViewSet):
