@@ -99,11 +99,11 @@ class Ticket(models.Model):
             (seat, "seat", "seats_in_row"),
         ]:
             counter = getattr(flight, flight_attr_name)
-            if not (1 <= ticket_attr_value <=counter):
+            if not (1 <= ticket_attr_value <= counter):
                 raise ValidationError(
                     {
                         ticket_attr_name: f"{ticket_attr_name} "
-                        f"number is not in range: (1, {counter})"
+                                          f"number is not in range: (1, {counter})"
                     }
                 )
 

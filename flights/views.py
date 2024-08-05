@@ -29,7 +29,7 @@ class CrewViewSet(ModelViewSet):
 
 
 class RouteViewSet(ModelViewSet):
-    queryset = Route.objects.all()
+    queryset = Route.objects.all().select_related("source", "destination")
     serializer_class = RouteSerializer
 
     def get_serializer_class(self):
@@ -42,7 +42,15 @@ class RouteViewSet(ModelViewSet):
         return serializer_class
 
     def get_queryset(self):
-        queryset = Route.objects.all().select_related("source", "destination")
+        queryset = self.queryset
+        source = self.request.query_params.get("source")
+        destination = self.request.query_params.get("destination")
+        if source:
+            queryset = queryset.filter(source__name__icontains=source)
+
+        if destination:
+            queryset = queryset.filter(destination__name__icontains=destination)
+
         return queryset
 
 
@@ -64,9 +72,22 @@ class AirplaneViewSet(ModelViewSet):
 
         return serializer_class
 
+    def get_queryset(self):
+        queryset = self.queryset.select_related("airplane_type")
+        return queryset
+
 
 class FlightViewSet(ModelViewSet):
-    queryset = Flight.objects.all()
+    queryset = (
+        Flight.objects.all()
+        .select_related("route", "airplane", "route__source", "route__destination")
+        .prefetch_related("crew")
+        .annotate(
+            available_places=
+            F("airplane__rows") * F("airplane__seats_in_row")
+            - Count("tickets")
+        )
+    )
     serializer_class = FlightSerializer
 
     def get_serializer_class(self):
@@ -82,9 +103,7 @@ class FlightViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset
-        queryset = queryset.annotate(
-            available_places=F("airplane__rows") * F("airplane__seats_in_row") - Count("tickets")
-        )
+
         return queryset
 
 
