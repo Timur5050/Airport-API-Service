@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from flights.models import Airport, AirplaneType, Route, Airplane, Flight, Crew
-from flights.serializers import FlightSerializer, FLightRetrieveSerializer
+from flights.serializers import FlightSerializer, FLightRetrieveSerializer, RouteSerializer
 
 route_url = reverse("flights:route-list")
 
@@ -21,12 +21,6 @@ def create_default_airport(val):
     return Airport.objects.create(
         name=f"test{val}",
         closest_big_city=f"city{val}",
-    )
-
-
-def create_default_airplane_type():
-    return AirplaneType.objects.create(
-        name="testik"
     )
 
 
@@ -46,3 +40,37 @@ class TestUnauthenticatedUserRoute(TestCase):
         res = self.client.get(route_url)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
+
+class TestAuthenticatedUserRoute(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            "test",
+            "test123@gmail.com",
+            "test123"
+        )
+        self.client.force_authenticate(self.user)
+        self.airport1 = create_default_airport(1)
+        self.airport2 = create_default_airport(2)
+
+
+    def test_retrieve_route_details(self):
+        route = create_default_route(self.airport1, self.airport2)
+
+        url = detail_url(route.id)
+        res = self.client.get(url)
+
+        serializer = RouteSerializer(route)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_create_route_forbidden(self):
+        data = {
+            "source": self.airport1.id,
+            "destination": self.airport2.id,
+            "distance": 1000,
+        }
+
+        res = self.client.post(route_url, data)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
