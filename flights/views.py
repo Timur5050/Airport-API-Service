@@ -1,8 +1,7 @@
 from django.db.models import F, Count
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
-from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.mixins import ListModelMixin
+from rest_framework.permissions import IsAuthenticated
 
 from flights.models import Airport, Crew, Route, Airplane, AirplaneType, Flight, Order
 from flights.serializers import (
@@ -244,15 +243,11 @@ class FlightViewSet(ModelViewSet):
         if self.action == 'list':
             serializer_class = FlightListSerializer
         elif self.action == "create":
-             serializer_class = FlightSerializer
+            serializer_class = FlightSerializer
         elif self.action == "retrieve":
-             serializer_class = FLightRetrieveSerializer
+            serializer_class = FLightRetrieveSerializer
 
         return serializer_class
-
-    # def create(self, request, *args, **kwargs):
-    #     raise MethodNotAllowed(request.POST)
-
 
 
 @extend_schema_view(
@@ -278,3 +273,8 @@ class FlightViewSet(ModelViewSet):
 class OrderViewSet(ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(user=self.request.user)
+        return queryset
