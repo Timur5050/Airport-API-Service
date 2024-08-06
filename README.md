@@ -32,14 +32,10 @@ python -m venv venv
 venv\Scripts\activate
 # On macOS/Linux
 source venv/bin/activate
+# set environmental variables
+create .env file and configure a .env file using a sample.env template.
 # Install required packages
 pip install -r requirements.txt
-SET POSTGRES_DB=<your db name>
-SET POSTGRES_USER=<your db username>
-SET POSTGRES_PASSWORD=<your db password>
-SET POSTGRES_HOST=<your db host>
-SET POSTGRES_POST=<your db 5432>
-SET PGDATA=/var/lib/postgresql/data
 # Apply migrations
 python manage.py migrate
 # Run the development server
@@ -55,6 +51,8 @@ Docker should be installed
 git clone https://github.com/Timur5050/Airport-API-Service.git
 # Change to the project directory
 cd Airport-API-Service
+# set environmental variables
+create .env file and configure a .env file using a sample.env template.
 # build docker compose
 docker-compose build
 # then start containers
