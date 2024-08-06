@@ -19,9 +19,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@@w))d&m&1(g*(a-9$-hxo3v*p*60b4z@h_=dq7ttgi89irqkm'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -79,8 +81,6 @@ WSGI_APPLICATION = 'airport.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-env_path = Path('.') / '.env'
-load_dotenv(dotenv_path=env_path)
 
 DATABASES = {
     'default': {
