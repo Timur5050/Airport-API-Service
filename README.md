@@ -2,6 +2,10 @@
 
 Welcome to the API Airport Service for Airport Management!
 
+<br>db schema:<br>
+<img width="786" alt="Снимок экрана 2024-08-13 в 13 31 23" src="https://github.com/user-attachments/assets/60cd3eae-0545-42a5-9d87-5d60d9eaab38">
+
+
 Our API Airport Service is a comprehensive solution designed to manage airport operations efficiently. Built using Django and Django Rest Framework (DRF) with a PostgreSQL database, this service offers robust functionality and scalability to meet the needs of modern airport management.
 
 # Features
